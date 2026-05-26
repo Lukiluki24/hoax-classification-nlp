@@ -1,0 +1,31 @@
+.indobert-auto-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 11px !important;
+  font-weight: bold !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  text-transform: uppercase !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  border: 1px solid !important;
+  letter-spacing: 0.5px !important;
+  margin-left: 12px !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  height: 22px !important;
+  line-height: 1 !important;
+}
+
+.indobert-hoax {
+  background-color: #fff5f5 !important;
+  color: #e50914 !important;
+  border-color: #ffc9c9 !important;
+}
+
+.indobert-faktual {
+  background-color: #f4fbf7 !important;
+  color: #28a745 !important;
+  border-color: #b2f2bb !important;
+}
