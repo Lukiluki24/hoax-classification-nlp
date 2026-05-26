@@ -1,4 +1,4 @@
-# SUMMARY — Hoax Headline Classification (Bahasa Indonesia)
+# SUMMARY — Indonesian Hoax News Detection System Based on Headlines Using Fine-Tuned IndoBERT
 
 Material scientific presentation. Format: Problem → Methodology → Results → Discussion → Conclusion.
 
@@ -11,28 +11,47 @@ Material scientific presentation. Format: Problem → Methodology → Results �
 
 ### 1.1 Latar Belakang
 
-- Hoaks meledak Indonesia. Kominfo deteksi ~800.000 situs penyebar hoaks (2017).
-- Dampak: 38–61.1% warga desa & 45.3–79.6% warga kota pernah jadi korban.
-- Verifikasi manual lambat & mahal tenaga.
-- Solusi: klasifikasi otomatis berbasis NLP.
+- Kemajuan teknologi komunikasi → penyebaran hoaks meledak (*Simanjuntak et al., 2024; Yefferson et al., 2024; Pekandi et al., 2025*).
+- Indonesia: hoaks manipulasi opini publik & ganggu stabilitas demokrasi — terutama saat pemilu (*Pekandi et al., 2025*).
+- Kominfo catat ~800.000 situs penyebar hoaks (*Simanjuntak et al., 2024*).
+- Verifikasi manual mahal tenaga & waktu → klasifikasi otomatis kritikal.
+- **Headline = vector misinformation utama:** pembaca sering hanya baca judul sebelum share; judul sering didesain menyesatkan (*Pekandi et al., 2025*).
 
-### 1.2 Research Gap
+### 1.2 Pendekatan & Pilihan Model
 
-- IndoBERT sering pakai hyperparameter default (fine-tuning statis).
-- Belum banyak studi tuning hyperparameter sistematis untuk IndoBERT.
-- Belum ada benchmark head-to-head: klasik (TF-IDF) vs RNN (BiLSTM) vs Transformer monolingual (IndoBERT) vs Transformer multilingual (mBERT) — pada judul berita Indonesia.
+- Target sistem: deteksi otomatis berbasis **Transformer monolingual IndoBERT**.
+- Alasan IndoBERT: state-of-the-art NLP Indonesia, tangkap makna kontekstual khas Bahasa Indonesia, terbukti ungguli ML tradisional & hybrid CNN-LSTM (*Yefferson et al., 2024; Simanjuntak et al., 2024; Pekandi et al., 2025*).
+- Tujuan akhir: backend support untuk **real-time hoax detection app**.
 
-### 1.3 Research Questions
+### 1.3 Research Gap
 
-1. Apakah Bayesian hyperparameter tuning tingkatkan performa IndoBERT vs default?
-2. Apakah Transformer (IndoBERT) ungguli baseline klasik & BiLSTM?
-3. Apakah IndoBERT (monolingual) ungguli mBERT (multilingual) untuk teks Indonesia?
+- IndoBERT sering deploy dengan hyperparameter default (fine-tuning statis) — potensi performa belum tergali.
+- Bayesian Optimization untuk IndoBERT tunjukkan jalur peningkatan (*Simanjuntak et al., 2024* claim Acc 94.32%) — belum direplikasi luas.
+- Belum ada benchmark head-to-head 4 paradigma pada split identik:
+  - **Classical ML:** Ensemble TF-IDF (*Pekandi et al., 2025* — 91.18%).
+  - **Standard DL:** BiLSTM (*Arkaan et al., 2024* — 92%).
+  - **Multilingual Transformer:** mBERT (*Hutama & Suhartono, 2022* — 90.51%).
+  - **Monolingual Transformer + Bayesian tuning:** IndoBERT (target SOTA).
 
-### 1.4 Kontribusi
+### 1.4 Research Questions
 
-- Benchmark 4 model pada split identik (reproducible, `random_state=42`).
-- Pipeline preprocessing terpisah optimal per kelas model (A: klasik/RNN, B: Transformer).
-- Demonstrasi Bayesian TPE Optuna efektif untuk fine-tune BERT.
+1. Apakah Bayesian hyperparameter tuning (Optuna TPE) tingkatkan performa IndoBERT vs default fine-tuning?
+2. Apakah self-attention Transformer benar-benar tawarkan keunggulan kontekstual signifikan vs RNN advanced (BiLSTM)?
+3. Apakah IndoBERT (monolingual fokus) ungguli mBERT (multilingual heavy) untuk teks Indonesia?
+4. Apakah Transformer modern outperform classical ensemble baseline pada judul pendek?
+
+### 1.5 Success Criteria (dari Proposal)
+
+- Fine-tuned IndoBERT capai **Accuracy ≥ 90% dan F1-Score ≥ 90%** (replikasi SOTA literatur).
+- IndoBERT **outperform Ensemble baseline** dan kompetitif vs arsitektur pembanding lain.
+- Sistem **operasional via CLI** — output binary (`Hoax`/`Faktual`) + confidence score untuk input judul user.
+
+### 1.6 Kontribusi
+
+- Benchmark reproducible 4 paradigma arsitektur pada split identik (`random_state=42`).
+- Pipeline preprocessing terpisah optimal per kelas model (A: classical/RNN, B: Transformer).
+- Demonstrasi Bayesian TPE Optuna efektif untuk fine-tune IndoBERT.
+- CLI inference siap pakai → fondasi backend real-time detection app.
 
 ---
 
@@ -235,12 +254,23 @@ Script training **identik** dengan IndoBERT — beda hanya `--model-name`. Searc
 
 ## 5. CONCLUSION
 
-### 5.1 Temuan Utama
+### 5.1 Temuan Utama vs Success Criteria Proposal
 
-1. **IndoBERT fine-tuned Bayesian Optuna** = arsitektur terbaik. Accuracy 90.55%, F1 89.49%, Recall 90.78%.
-2. **Monolingual > Multilingual** untuk Bahasa Indonesia. IndoBERT ungguli mBERT di semua metrik utama.
-3. **Baseline klasik (TF-IDF + Ensemble) sangat kuat** — mengungguli BiLSTM & mBERT. Worth as benchmark.
-4. **Bayesian hyperparameter search efisien** — 20 trial cukup untuk menemukan konfigurasi optimal.
+| Kriteria proposal | Hasil aktual | Status |
+|---|---|---|
+| IndoBERT Accuracy ≥ 90% | **0.9055** | ✅ tercapai |
+| IndoBERT F1-Score ≥ 90% | **0.8949** | ⚠️ near miss (–0.51 pp) |
+| IndoBERT outperform Ensemble baseline | Acc +2.75 pp, F1 +2.95 pp | ✅ tercapai |
+| IndoBERT outperform BiLSTM | Acc +6.34 pp, F1 +6.68 pp | ✅ tercapai |
+| IndoBERT outperform mBERT | Acc +6.64 pp, F1 +9.06 pp | ✅ tercapai |
+| CLI operasional (Hoax/Faktual + confidence) | [src/predict.py](src/predict.py) | ✅ tercapai |
+
+### 5.2 Temuan Lain
+
+1. **IndoBERT fine-tuned Bayesian Optuna** = arsitektur terbaik di 4 paradigma. Accuracy 90.55%, F1 89.49%, Recall 90.78%.
+2. **Monolingual > Multilingual** untuk Bahasa Indonesia. IndoBERT ungguli mBERT di semua metrik utama → jawab RQ3.
+3. **Baseline klasik (TF-IDF + Ensemble) sangat kuat** — mengungguli BiLSTM & mBERT → jawab RQ2 (Transformer tidak otomatis menang, butuh pretraining domain yang tepat).
+4. **Bayesian hyperparameter search efisien** — 20 trial cukup untuk menemukan konfigurasi optimal → jawab RQ1.
 5. **MAX_LEN=128 cukup** untuk headline-only — hemat 75% compute vs paper 512 tanpa kehilangan akurasi.
 
 ### 5.2 Kontribusi
